@@ -7,11 +7,11 @@ import { convertFromHpa } from './unit-utils';
 const CENTER = 100;
 const ZONE_RADIUS = 86;
 const ZONE_STROKE_WIDTH = 9;
-const ZONE_LABEL_RADIUS = 75;
-const TICK_OUTER_RADIUS = 79;
-const MAJOR_TICK_LEN = 9;
+const ZONE_LABEL_ARC_RADIUS = 77;
+const TICK_OUTER_RADIUS = 72;
+const MAJOR_TICK_LEN = 8;
 const MINOR_TICK_LEN = 4;
-const MAJOR_LABEL_RADIUS = 52;
+const MAJOR_LABEL_RADIUS = 50;
 const NEEDLE_LENGTH = 62;
 const NEEDLE_TAIL = 14;
 const TREND_MARKER_RADIUS = 95;
@@ -44,15 +44,30 @@ function renderZoneArcs(min: number, max: number, unit: PressureUnit): SVGTempla
   });
 }
 
+/**
+ * Zone labels follow a curved arc (rather than sitting as flat horizontal
+ * text) so they stay within the narrow radial gap between the tick marks
+ * and the color band at every angle. Flat text only fits that gap near the
+ * top of the dial, where the tangential direction is roughly horizontal;
+ * near the 9/3 o'clock positions the tangential direction is vertical, so
+ * flat horizontal text would extend *radially* by its full width instead
+ * of its height and blow through both neighboring rings.
+ */
 function renderZoneLabels(min: number, max: number, unit: PressureUnit): SVGTemplateResult[] {
   return ZONES_HPA.map((zone) => {
-    const from = convertFromHpa(zone.from, unit);
-    const to = convertFromHpa(zone.to, unit);
-    const midValue = (Math.max(from, min) + Math.min(to, max)) / 2;
-    if (midValue < min || midValue > max) return svg``;
-    const angle = valueToAngle(midValue, min, max);
-    const pos = polarToCartesian(CENTER, CENTER, ZONE_LABEL_RADIUS, angle);
-    return svg`<text x=${pos.x} y=${pos.y} class="zone-label" text-anchor="middle">${zone.label}</text>`;
+    const from = Math.max(convertFromHpa(zone.from, unit), min);
+    const to = Math.min(convertFromHpa(zone.to, unit), max);
+    if (to <= from) return svg``;
+    const startAngle = valueToAngle(from, min, max);
+    const endAngle = valueToAngle(to, min, max);
+    const pathId = `zone-label-path-${zone.key}`;
+    const path = describeArc(CENTER, CENTER, ZONE_LABEL_ARC_RADIUS, startAngle, endAngle);
+    return svg`
+      <path id=${pathId} d=${path} fill="none" stroke="none" />
+      <text class="zone-label" dominant-baseline="middle">
+        <textPath href=${'#' + pathId} startOffset="50%" text-anchor="middle">${zone.label}</textPath>
+      </text>
+    `;
   });
 }
 
@@ -69,7 +84,7 @@ function renderTicks(min: number, max: number, unit: PressureUnit): SVGTemplateR
     />`;
     if (!tick.major) return line;
     const labelPos = polarToCartesian(CENTER, CENTER, MAJOR_LABEL_RADIUS, tick.angle);
-    const label = svg`<text x=${labelPos.x} y=${labelPos.y} class="tick-label" text-anchor="middle">${Math.round(
+    const label = svg`<text x=${labelPos.x} y=${labelPos.y} class="tick-label" text-anchor="middle" dominant-baseline="middle">${Math.round(
       tick.value * 10
     ) / 10}</text>`;
     return svg`${line}${label}`;
