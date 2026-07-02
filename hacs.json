@@ -1,0 +1,6 @@
+{
+  "name": "Pressure Widget (Analog Barometer)",
+  "content_in_root": false,
+  "filename": "ha-pressure-widget.js",
+  "render_readme": true
+}

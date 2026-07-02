@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ha-pressure-widget harness</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #e8e8e8;
+    margin: 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  h2 { margin: 0 0 8px; }
+  .row { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+  .panel {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    min-width: 280px;
+  }
+  .panel label { display: block; margin-bottom: 10px; font-size: 0.85rem; }
+  .panel input, .panel select { width: 100%; box-sizing: border-box; margin-top: 4px; }
+  button {
+    margin: 4px 4px 0 0;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  #card-container { display: flex; gap: 16px; flex-wrap: wrap; }
+  #editor-container { max-width: 360px; }
+  pre { font-size: 0.75rem; background: #f4f4f4; padding: 8px; overflow: auto; max-height: 160px; }
+</style>
+</head>
+<body>
+  <h2>ha-pressure-widget — manual browser harness</h2>
+  <p>Loads the built <code>dist/ha-pressure-widget.js</code> against a mock <code>hass</code> object.
+  <code>ha-card</code> and <code>ha-form</code> are stubbed here since they normally come from the real
+  Home Assistant frontend.</p>
+
+  <div class="row">
+    <div id="card-container"></div>
+
+    <div class="panel">
+      <h3>Controls</h3>
+      <label>Current pressure (hPa)
+        <input type="range" id="pressure-slider" min="940" max="1060" step="0.5" value="1013.2" />
+        <input type="number" id="pressure-number" min="940" max="1060" step="0.1" value="1013.2" />
+      </label>
+      <label>Simulated value 3h ago (hPa), used by mock history API
+        <input type="number" id="past-value" step="0.1" value="1010.0" />
+      </label>
+      <button id="apply-trend">Apply &amp; refetch trend</button>
+      <button id="preset-rising">Preset: Rising</button>
+      <button id="preset-falling">Preset: Falling</button>
+      <button id="preset-steady">Preset: Steady</button>
+      <button id="clear-cache">Clear trend cache (localStorage)</button>
+      <p style="font-size:0.75rem;color:#666">
+        Reload the page after setting a trend to confirm it's restored instantly from localStorage
+        before the (throttled) background refetch runs.
+      </p>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <div class="panel" id="editor-container">
+    <h3>Config editor</h3>
+    <div id="editor-slot"></div>
+    <pre id="editor-log"></pre>
+  </div>
+
+<script type="module">
+  // --- Stubs for HA frontend elements not available outside real Home Assistant ---
+  class MockHaCard extends HTMLElement {
+    connectedCallback() {
+      Object.assign(this.style, {
+        display: 'block',
+        borderRadius: '12px',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+        background: '#fff',
+        overflow: 'hidden',
+      });
+    }
+  }
+  customElements.define('ha-card', MockHaCard);
+
+  class MockHaForm extends HTMLElement {
+    set hass(v) { this._hass = v; this._render(); }
+    set data(v) { this._data = v; this._render(); }
+    set schema(v) { this._schema = v; this._render(); }
+    set computeLabel(fn) { this._computeLabel = fn; this._render(); }
+    _render() {
+      if (!this._schema || !this._data) return;
+      this.innerHTML = '';
+      const form = document.createElement('div');
+      form.style.display = 'flex';
+      form.style.flexDirection = 'column';
+      form.style.gap = '10px';
+      for (const field of this._schema) {
+        const label = document.createElement('label');
+        label.style.display = 'block';
+        label.style.fontSize = '0.85rem';
+        label.textContent = (this._computeLabel ? this._computeLabel(field) : field.name) + ': ';
+        let input;
+        if (field.selector?.select) {
+          input = document.createElement('select');
+          for (const opt of field.selector.select.options) {
+            const o = document.createElement('option');
+            o.value = opt.value;
+            o.textContent = opt.label;
+            input.appendChild(o);
+          }
+        } else if (field.selector?.number) {
+          input = document.createElement('input');
+          input.type = 'number';
+        } else {
+          input = document.createElement('input');
+          input.type = 'text';
+        }
+        input.style.width = '100%';
+        input.value = this._data[field.name] ?? '';
+        input.addEventListener('change', () => {
+          const value = { ...this._data, [field.name]: input.value };
+          this.dispatchEvent(
+            new CustomEvent('value-changed', { detail: { value }, bubbles: true, composed: true })
+          );
+        });
+        label.appendChild(input);
+        form.appendChild(label);
+      }
+      this.appendChild(form);
+    }
+  }
+  customElements.define('ha-form', MockHaForm);
+
+  // --- Mock hass ---
+  import '../dist/ha-pressure-widget.js';
+
+  const log = document.getElementById('log');
+  function logMsg(msg) {
+    log.textContent = `${new Date().toLocaleTimeString()}  ${msg}\n` + log.textContent;
+  }
+
+  let pastValueHpa = 1010.0;
+
+  const entityState = {
+    entity_id: 'sensor.pressure',
+    state: '1013.2',
+    last_changed: new Date().toISOString(),
+    last_updated: new Date().toISOString(),
+    attributes: {
+      friendly_name: 'Outdoor Pressure',
+      unit_of_measurement: 'hPa',
+      device_class: 'atmospheric_pressure',
+    },
+  };
+
+  function makeHass() {
+    return {
+      language: 'en',
+      states: { 'sensor.pressure': { ...entityState, attributes: { ...entityState.attributes } } },
+      callApi: async (method, path) => {
+        logMsg(`callApi ${method} ${path}`);
+        await new Promise((r) => setTimeout(r, 200));
+        return [
+          [
+            {
+              state: String(pastValueHpa),
+              last_updated: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
+            },
+          ],
+        ];
+      },
+    };
+  }
+
+  let card = document.createElement('ha-pressure-widget');
+  card.setConfig({ type: 'custom:ha-pressure-widget', entity: 'sensor.pressure' });
+  card.hass = makeHass();
+  document.getElementById('card-container').appendChild(card);
+
+  function pushHassUpdate() {
+    entityState.last_updated = new Date().toISOString();
+    card.hass = makeHass();
+  }
+
+  const slider = document.getElementById('pressure-slider');
+  const number = document.getElementById('pressure-number');
+  function setPressure(v) {
+    entityState.state = String(v);
+    slider.value = v;
+    number.value = v;
+    pushHassUpdate();
+  }
+  slider.addEventListener('input', () => setPressure(slider.value));
+  number.addEventListener('change', () => setPressure(number.value));
+
+  // The card's TrendTracker throttles history fetches to once per ~5min per
+  // instance (by design, to avoid hammering the history API). To exercise
+  // different trend outcomes in this harness, remount the card — same as
+  // what happens on a real Lovelace dashboard reload — so it re-reads the
+  // (now-cleared) localStorage cache and fetches fresh.
+  document.getElementById('apply-trend').addEventListener('click', () => {
+    pastValueHpa = parseFloat(document.getElementById('past-value').value);
+    localStorage.removeItem('ha-pressure-widget-trend-sensor.pressure');
+    entityState.last_updated = new Date().toISOString();
+
+    const container = document.getElementById('card-container');
+    container.removeChild(card);
+    card = document.createElement('ha-pressure-widget');
+    card.setConfig({ type: 'custom:ha-pressure-widget', entity: 'sensor.pressure' });
+    card.hass = makeHass();
+    container.appendChild(card);
+
+    logMsg(`Set simulated past value to ${pastValueHpa} hPa, cleared cache, remounted card`);
+  });
+
+  document.getElementById('preset-rising').addEventListener('click', () => {
+    document.getElementById('past-value').value = parseFloat(entityState.state) - 4;
+    document.getElementById('apply-trend').click();
+  });
+  document.getElementById('preset-falling').addEventListener('click', () => {
+    document.getElementById('past-value').value = parseFloat(entityState.state) + 4;
+    document.getElementById('apply-trend').click();
+  });
+  document.getElementById('preset-steady').addEventListener('click', () => {
+    document.getElementById('past-value').value = parseFloat(entityState.state);
+    document.getElementById('apply-trend').click();
+  });
+
+  document.getElementById('clear-cache').addEventListener('click', () => {
+    localStorage.removeItem('ha-pressure-widget-trend-sensor.pressure');
+    logMsg('Cleared localStorage trend cache');
+  });
+
+  // --- Editor ---
+  const editor = document.createElement('ha-pressure-widget-editor');
+  editor.hass = makeHass();
+  editor.setConfig({ type: 'custom:ha-pressure-widget', entity: 'sensor.pressure', trend_hours: 3, trend_threshold: 1.5 });
+  document.getElementById('editor-slot').appendChild(editor);
+  const editorLog = document.getElementById('editor-log');
+  editor.addEventListener('config-changed', (ev) => {
+    editorLog.textContent = JSON.stringify(ev.detail.config, null, 2);
+  });
+</script>
+</body>
+</html>
