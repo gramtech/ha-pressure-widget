@@ -5,11 +5,6 @@ classic analog aneroid barometer — a dial with a needle, the familiar
 Stormy / Rain / Change / Fair / Very Dry weather zones, and a pressure trend
 indicator (rising / falling / steady) computed from your recorder history.
 
-> **Renamed from `ha-pressure-widget`.** If you're updating from an older
-> version, update your dashboard YAML: `type: custom:ha-pressure-widget` →
-> `type: custom:analog-barometer-card`, and update the resource filename
-> below. The old tag name no longer works after this update.
-
 ![Analog barometer card](screenshots/card.png)
 
 ## Features
