@@ -5,12 +5,6 @@ classic analog aneroid barometer — a dial with a needle, the familiar
 Stormy / Rain / Change / Fair / Very Dry weather zones, and a pressure trend
 indicator (rising / falling / steady) computed from your recorder history.
 
-![Analog barometer card](screenshots/card-light.png)
-
-In a Lovelace dashboard:
-
-![Analog barometer card in a Lovelace dashboard](screenshots/card-dark.png)
-
 ## Features
 
 - Analog dial rendered in SVG, styled like a classic household barometer
@@ -72,6 +66,8 @@ needle_color: "#333333"
 
 ### Face styles
 
+On a light Home Assistant theme:
+
 <table>
 <tr>
 <td align="center"><code>classic</code><br><img src="screenshots/theme-classic.png" width="140"></td>
@@ -83,6 +79,23 @@ needle_color: "#333333"
 <td align="center"><code>led-backlit</code><br><img src="screenshots/theme-led-backlit.png" width="140"></td>
 <td align="center"><code>fluorescent</code><br><img src="screenshots/theme-fluorescent.png" width="140"></td>
 <td align="center"><code>futuristic</code><br><img src="screenshots/theme-futuristic.png" width="140"></td>
+<td></td>
+</tr>
+</table>
+
+On a dark Home Assistant theme:
+
+<table>
+<tr>
+<td align="center"><code>classic</code><br><img src="screenshots/theme-classic-on-dark.png" width="140"></td>
+<td align="center"><code>silver</code><br><img src="screenshots/theme-silver-on-dark.png" width="140"></td>
+<td align="center"><code>dark</code><br><img src="screenshots/theme-dark-on-dark.png" width="140"></td>
+<td align="center"><code>light</code><br><img src="screenshots/theme-light-on-dark.png" width="140"></td>
+</tr>
+<tr>
+<td align="center"><code>led-backlit</code><br><img src="screenshots/theme-led-backlit-on-dark.png" width="140"></td>
+<td align="center"><code>fluorescent</code><br><img src="screenshots/theme-fluorescent-on-dark.png" width="140"></td>
+<td align="center"><code>futuristic</code><br><img src="screenshots/theme-futuristic-on-dark.png" width="140"></td>
 <td></td>
 </tr>
 </table>
