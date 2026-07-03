@@ -5,7 +5,11 @@ classic analog aneroid barometer — a dial with a needle, the familiar
 Stormy / Rain / Change / Fair / Very Dry weather zones, and a pressure trend
 indicator (rising / falling / steady) computed from your recorder history.
 
-![Analog barometer card](screenshots/card.png)
+![Analog barometer card](screenshots/card-light.png)
+
+In a Lovelace dashboard:
+
+![Analog barometer card in a Lovelace dashboard](screenshots/card-dark.png)
 
 ## Features
 
