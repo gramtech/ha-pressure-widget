@@ -52,6 +52,7 @@ name: Outdoor Pressure
 unit: hPa
 trend_hours: 3
 trend_threshold: 1.5
+face_style: classic
 needle_color: "#333333"
 ```
 
@@ -66,7 +67,25 @@ needle_color: "#333333"
 | `max`              | number | 1050 hPa / 31.0 inHg              | Upper bound of the dial scale                                      |
 | `trend_hours`      | number | 3                                 | How many hours back to look up for computing the trend             |
 | `trend_threshold`  | number | 1.5 hPa (auto-scaled for inHg)    | Minimum change over `trend_hours` to be considered rising/falling  |
-| `needle_color`     | string | `#333`                            | CSS color for the needle                                           |
+| `face_style`       | string | `classic`                         | Dial appearance: `classic`, `silver`, `dark`, `light`, `led-backlit`, `fluorescent`, or `futuristic` |
+| `needle_color`     | string | set per `face_style`              | CSS color for the needle; overrides the face style's default       |
+
+### Face styles
+
+<table>
+<tr>
+<td align="center"><code>classic</code><br><img src="screenshots/theme-classic.png" width="140"></td>
+<td align="center"><code>silver</code><br><img src="screenshots/theme-silver.png" width="140"></td>
+<td align="center"><code>dark</code><br><img src="screenshots/theme-dark.png" width="140"></td>
+<td align="center"><code>light</code><br><img src="screenshots/theme-light.png" width="140"></td>
+</tr>
+<tr>
+<td align="center"><code>led-backlit</code><br><img src="screenshots/theme-led-backlit.png" width="140"></td>
+<td align="center"><code>fluorescent</code><br><img src="screenshots/theme-fluorescent.png" width="140"></td>
+<td align="center"><code>futuristic</code><br><img src="screenshots/theme-futuristic.png" width="140"></td>
+<td></td>
+</tr>
+</table>
 
 ## Development
 

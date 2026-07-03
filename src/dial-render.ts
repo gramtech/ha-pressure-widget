@@ -123,6 +123,20 @@ export function renderDial(params: DialParams): SVGTemplateResult {
   const { min, max, unit, value, pastValue, needleColor } = params;
   return svg`
     <svg viewBox="0 0 200 200" class="dial" role="img" aria-label="Barometer dial">
+      <defs>
+        <radialGradient id="barometer-silver-face" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#fdfdfd" />
+          <stop offset="55%" stop-color="#d8d8d8" />
+          <stop offset="100%" stop-color="#a8a8a8" />
+        </radialGradient>
+        <linearGradient id="barometer-silver-bezel" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f2f2f2" />
+          <stop offset="25%" stop-color="#bdbdbd" />
+          <stop offset="50%" stop-color="#e8e8e8" />
+          <stop offset="75%" stop-color="#9c9c9c" />
+          <stop offset="100%" stop-color="#e0e0e0" />
+        </linearGradient>
+      </defs>
       <circle cx=${CENTER} cy=${CENTER} r="97" class="bezel" />
       <circle cx=${CENTER} cy=${CENTER} r="90" class="face" />
       ${renderZoneArcs(min, max, unit)}

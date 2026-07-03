@@ -19,6 +19,15 @@ export interface HomeAssistant {
 
 export type PressureUnit = 'hPa' | 'inHg';
 
+export type FaceStyle =
+  | 'classic'
+  | 'silver'
+  | 'dark'
+  | 'light'
+  | 'led-backlit'
+  | 'fluorescent'
+  | 'futuristic';
+
 export interface AnalogBarometerCardConfig {
   type: string;
   entity: string;
@@ -29,6 +38,7 @@ export interface AnalogBarometerCardConfig {
   trend_hours?: number;
   trend_threshold?: number;
   needle_color?: string;
+  face_style?: FaceStyle;
 }
 
 export type TrendDirection = 'rising' | 'falling' | 'steady' | 'unknown';

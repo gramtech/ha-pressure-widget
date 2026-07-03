@@ -1,6 +1,13 @@
 import { LitElement, PropertyValues, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { CARD_TAG, DEFAULT_TREND_HOURS, EDITOR_TAG } from './const';
+import { classMap } from 'lit/directives/class-map.js';
+import {
+  CARD_TAG,
+  DEFAULT_FACE_STYLE,
+  DEFAULT_TREND_HOURS,
+  EDITOR_TAG,
+  NEEDLE_COLOR_BY_STYLE,
+} from './const';
 import { renderDial } from './dial-render';
 import { TrendTracker } from './trend';
 import { HomeAssistant, AnalogBarometerCardConfig, TrendDirection } from './types';
@@ -117,16 +124,18 @@ export class AnalogBarometerCard extends LitElement {
     const defaultRange = getDefaultRange(displayUnit);
     const min = this._config.min ?? defaultRange.min;
     const max = this._config.max ?? defaultRange.max;
-    // Fixed (not theme-linked): the needle sits on the dial's fixed cream
-    // face, not the card's theme-adapting background, so it must stay dark
-    // regardless of the user's HA theme (a light --primary-text-color from
-    // a dark theme would be nearly invisible here).
-    const needleColor = this._config.needle_color || '#333';
+    const faceStyle = this._config.face_style ?? DEFAULT_FACE_STYLE;
+    // Fixed (not theme-linked): the needle sits on the dial's fixed face,
+    // not the card's theme-adapting background, so its color is driven by
+    // the face style (or an explicit override) rather than the user's HA
+    // theme (a light --primary-text-color from a dark theme could be
+    // nearly invisible against some faces).
+    const needleColor = this._config.needle_color || NEEDLE_COLOR_BY_STYLE[faceStyle];
     const name = this._config.name ?? stateObj.attributes.friendly_name ?? this._config.entity;
 
     return html`
       <ha-card>
-        <div class="card-content">
+        <div class=${classMap({ 'card-content': true, [`style-${faceStyle}`]: true })}>
           <div class="title">${name}</div>
           ${renderDial({
             min,
@@ -249,6 +258,178 @@ export class AnalogBarometerCard extends LitElement {
     .trend .arrow {
       font-size: 1.1rem;
       line-height: 1;
+    }
+
+    /* Silver: brushed-metal gradients standing in for a real chrome case. */
+    .style-silver .bezel {
+      fill: url(#barometer-silver-bezel);
+      stroke: #7a7a7a;
+    }
+    .style-silver .face {
+      fill: url(#barometer-silver-face);
+      stroke: #9a9a9a;
+    }
+    .style-silver .tick {
+      stroke: #2b2b2b;
+    }
+    .style-silver .tick-label {
+      fill: #202020;
+    }
+    .style-silver .zone-label {
+      fill: #1a1a1a;
+    }
+    .style-silver .hub {
+      fill: #3a3a3a;
+      stroke: #111;
+    }
+    .style-silver .trend-marker {
+      stroke: #444;
+    }
+
+    /* Dark: charcoal face for dark dashboards, no glow. */
+    .style-dark .bezel {
+      fill: #2b2b2e;
+      stroke: #111113;
+    }
+    .style-dark .face {
+      fill: #1c1c1f;
+      stroke: #000;
+    }
+    .style-dark .tick {
+      stroke: #d8d8d8;
+    }
+    .style-dark .tick-label {
+      fill: #e8e8e8;
+    }
+    .style-dark .zone-label {
+      fill: #f0f0f0;
+    }
+    .style-dark .hub {
+      fill: #111;
+      stroke: #555;
+    }
+    .style-dark .trend-marker {
+      stroke: #bbb;
+    }
+
+    /* Light: clean, minimal, high-key face. */
+    .style-light .bezel {
+      fill: #f5f5f5;
+      stroke: #cfcfcf;
+    }
+    .style-light .face {
+      fill: #ffffff;
+      stroke: #e0e0e0;
+    }
+    .style-light .tick {
+      stroke: #666;
+    }
+    .style-light .tick-label {
+      fill: #444;
+    }
+    .style-light .zone-label {
+      fill: #333;
+    }
+    .style-light .hub {
+      fill: #555;
+      stroke: #333;
+    }
+    .style-light .trend-marker {
+      stroke: #999;
+    }
+
+    /* LED backlit: black face, glowing cyan ticks like a backlit gauge. */
+    .style-led-backlit .bezel {
+      fill: #0a0a0c;
+      stroke: #000;
+    }
+    .style-led-backlit .face {
+      fill: #05070a;
+      stroke: #000;
+    }
+    .style-led-backlit .tick {
+      stroke: #35d0ff;
+      filter: drop-shadow(0 0 2px #35d0ff);
+    }
+    .style-led-backlit .tick-label {
+      fill: #a8ecff;
+      filter: drop-shadow(0 0 1px #35d0ff);
+    }
+    .style-led-backlit .zone-label {
+      fill: #cdf5ff;
+    }
+    .style-led-backlit .hub {
+      fill: #111;
+      stroke: #35d0ff;
+    }
+    .style-led-backlit .trend-marker {
+      stroke: #35d0ff;
+    }
+    .style-led-backlit .needle {
+      filter: drop-shadow(0 0 3px #ff4d4d) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Fluorescent: old radium-dial glow-in-the-dark look. */
+    .style-fluorescent .bezel {
+      fill: #2e2b1a;
+      stroke: #1a1810;
+    }
+    .style-fluorescent .face {
+      fill: #1c1f14;
+      stroke: #0e0f0a;
+    }
+    .style-fluorescent .tick {
+      stroke: #baff29;
+      filter: drop-shadow(0 0 2px #baff29);
+    }
+    .style-fluorescent .tick-label {
+      fill: #d4ff7a;
+      filter: drop-shadow(0 0 1px #baff29);
+    }
+    .style-fluorescent .zone-label {
+      fill: #e8ffb0;
+    }
+    .style-fluorescent .hub {
+      fill: #232316;
+      stroke: #baff29;
+    }
+    .style-fluorescent .trend-marker {
+      stroke: #baff29;
+    }
+    .style-fluorescent .needle {
+      filter: drop-shadow(0 0 3px #baff29) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Futuristic: dark face with neon cyan/magenta accents. */
+    .style-futuristic .bezel {
+      fill: #10141c;
+      stroke: #00e5ff;
+    }
+    .style-futuristic .face {
+      fill: #0b0e14;
+      stroke: #131a24;
+    }
+    .style-futuristic .tick {
+      stroke: #00e5ff;
+    }
+    .style-futuristic .tick-major {
+      filter: drop-shadow(0 0 2px #00e5ff);
+    }
+    .style-futuristic .tick-label {
+      fill: #7df9ff;
+    }
+    .style-futuristic .zone-label {
+      fill: #c7fbff;
+    }
+    .style-futuristic .hub {
+      fill: #0b0e14;
+      stroke: #ff2fd0;
+    }
+    .style-futuristic .trend-marker {
+      stroke: #ff2fd0;
+    }
+    .style-futuristic .needle {
+      filter: drop-shadow(0 0 3px #ff2fd0) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
     }
   `;
 }

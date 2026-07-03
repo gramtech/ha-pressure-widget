@@ -1,5 +1,20 @@
+import { FaceStyle } from './types';
+
 export const CARD_TAG = 'analog-barometer-card';
 export const EDITOR_TAG = 'analog-barometer-card-editor';
+
+export const DEFAULT_FACE_STYLE: FaceStyle = 'classic';
+
+/** Needle color used per face style unless the user sets `needle_color` explicitly. */
+export const NEEDLE_COLOR_BY_STYLE: Record<FaceStyle, string> = {
+  classic: '#333333',
+  silver: '#222222',
+  dark: '#e8e8e8',
+  light: '#333333',
+  'led-backlit': '#ff4d4d',
+  fluorescent: '#baff29',
+  futuristic: '#ff2fd0',
+};
 
 /** Classic aneroid barometer dial sweep: 270 degrees, gap at the bottom. */
 export const DIAL_START_ANGLE = -135;

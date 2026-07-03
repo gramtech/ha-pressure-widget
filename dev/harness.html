@@ -41,6 +41,9 @@
   <code>ha-card</code> and <code>ha-form</code> are stubbed here since they normally come from the real
   Home Assistant frontend.</p>
 
+  <h3>Face styles</h3>
+  <div class="row" id="style-gallery"></div>
+
   <div class="row">
     <div id="card-container"></div>
 
@@ -181,6 +184,23 @@
   card.setConfig({ type: 'custom:analog-barometer-card', entity: 'sensor.pressure' });
   card.hass = makeHass();
   document.getElementById('card-container').appendChild(card);
+
+  const FACE_STYLES = ['classic', 'silver', 'dark', 'light', 'led-backlit', 'fluorescent', 'futuristic'];
+  const gallery = document.getElementById('style-gallery');
+  for (const style of FACE_STYLES) {
+    const wrap = document.createElement('div');
+    wrap.style.width = '220px';
+    const styleCard = document.createElement('analog-barometer-card');
+    styleCard.setConfig({
+      type: 'custom:analog-barometer-card',
+      entity: 'sensor.pressure',
+      name: style,
+      face_style: style,
+    });
+    styleCard.hass = makeHass();
+    wrap.appendChild(styleCard);
+    gallery.appendChild(wrap);
+  }
 
   function pushHassUpdate() {
     entityState.last_updated = new Date().toISOString();
