@@ -19,7 +19,7 @@ export interface HomeAssistant {
 
 export type PressureUnit = 'hPa' | 'inHg';
 
-export interface PressureWidgetConfig {
+export interface AnalogBarometerCardConfig {
   type: string;
   entity: string;
   name?: string;

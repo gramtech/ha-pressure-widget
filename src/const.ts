@@ -1,5 +1,5 @@
-export const CARD_TAG = 'ha-pressure-widget';
-export const EDITOR_TAG = 'ha-pressure-widget-editor';
+export const CARD_TAG = 'analog-barometer-card';
+export const EDITOR_TAG = 'analog-barometer-card-editor';
 
 /** Classic aneroid barometer dial sweep: 270 degrees, gap at the bottom. */
 export const DIAL_START_ANGLE = -135;
@@ -33,4 +33,4 @@ export const TICK_STEPS: Record<'hPa' | 'inHg', { major: number; minor: number }
 };
 
 export const HISTORY_FETCH_THROTTLE_MS = 5 * 60 * 1000;
-export const TREND_STORAGE_PREFIX = 'ha-pressure-widget-trend-';
+export const TREND_STORAGE_PREFIX = 'analog-barometer-card-trend-';

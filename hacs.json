@@ -1,6 +1,6 @@
 {
-  "name": "Pressure Widget (Analog Barometer)",
+  "name": "Analog Barometer Card",
   "content_in_root": false,
-  "filename": "ha-pressure-widget.js",
+  "filename": "analog-barometer-card.js",
   "render_readme": true
 }

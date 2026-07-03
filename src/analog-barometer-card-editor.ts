@@ -2,19 +2,19 @@ import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { EDITOR_TAG } from './const';
 import { computeLabel, SCHEMA } from './editor-schema';
-import { fireEvent, HomeAssistant, PressureWidgetConfig } from './types';
+import { fireEvent, HomeAssistant, AnalogBarometerCardConfig } from './types';
 
 /**
  * Uses HA's built-in <ha-form>, which is already registered by the Home
  * Assistant frontend at runtime — no local import/bundle needed.
  */
 @customElement(EDITOR_TAG)
-export class HaPressureWidgetEditor extends LitElement {
+export class AnalogBarometerCardEditor extends LitElement {
   @property({ attribute: false }) hass?: HomeAssistant;
 
-  @state() private _config?: PressureWidgetConfig;
+  @state() private _config?: AnalogBarometerCardConfig;
 
-  setConfig(config: PressureWidgetConfig): void {
+  setConfig(config: AnalogBarometerCardConfig): void {
     this._config = config;
   }
 
@@ -31,7 +31,7 @@ export class HaPressureWidgetEditor extends LitElement {
     `;
   }
 
-  private _valueChanged(ev: CustomEvent<{ value: PressureWidgetConfig }>): void {
+  private _valueChanged(ev: CustomEvent<{ value: AnalogBarometerCardConfig }>): void {
     fireEvent(this, 'config-changed', { config: ev.detail.value });
   }
 }

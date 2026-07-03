@@ -4,9 +4,9 @@ import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 
 export default {
-  input: 'src/ha-pressure-widget.ts',
+  input: 'src/analog-barometer-card.ts',
   output: {
-    file: 'dist/ha-pressure-widget.js',
+    file: 'dist/analog-barometer-card.js',
     format: 'es',
     inlineDynamicImports: true,
   },

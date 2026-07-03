@@ -1,5 +1,5 @@
 {
-  "name": "ha-pressure-widget",
+  "name": "analog-barometer-card",
   "version": "0.1.0",
   "description": "A Home Assistant Lovelace custom card that displays barometric pressure as a classic analog aneroid barometer, with pressure trend tracking.",
   "license": "Apache-2.0",

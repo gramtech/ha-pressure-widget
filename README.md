@@ -1,9 +1,14 @@
-# ha-pressure-widget
+# analog-barometer-card
 
 A Home Assistant Lovelace custom card that displays barometric pressure as a
 classic analog aneroid barometer — a dial with a needle, the familiar
 Stormy / Rain / Change / Fair / Very Dry weather zones, and a pressure trend
 indicator (rising / falling / steady) computed from your recorder history.
+
+> **Renamed from `ha-pressure-widget`.** If you're updating from an older
+> version, update your dashboard YAML: `type: custom:ha-pressure-widget` →
+> `type: custom:analog-barometer-card`, and update the resource filename
+> below. The old tag name no longer works after this update.
 
 ![Analog barometer card](screenshots/card.png)
 
@@ -26,14 +31,14 @@ indicator (rising / falling / steady) computed from your recorder history.
 
 1. In HACS, go to **Frontend** → the **⋮** menu → **Custom repositories**.
 2. Add this repository URL with category **Lovelace**.
-3. Install **Pressure Widget (Analog Barometer)** and add the resource when prompted.
+3. Install **Analog Barometer Card** and add the resource when prompted.
 
 ### Manual
 
-1. Copy `dist/ha-pressure-widget.js` from this repo into your Home Assistant
+1. Copy `dist/analog-barometer-card.js` from this repo into your Home Assistant
    `config/www/` directory.
 2. In **Settings → Dashboards → Resources**, add a resource:
-   - URL: `/local/ha-pressure-widget.js`
+   - URL: `/local/analog-barometer-card.js`
    - Resource type: JavaScript Module
 
 ## Configuration
@@ -42,7 +47,7 @@ Add the card via the dashboard UI ("Add Card" → search for "Analog
 Barometer") and use the visual editor, or configure it directly in YAML:
 
 ```yaml
-type: custom:ha-pressure-widget
+type: custom:analog-barometer-card
 entity: sensor.outdoor_pressure
 name: Outdoor Pressure
 unit: hPa
@@ -62,13 +67,13 @@ needle_color: "#333333"
 | `max`              | number | 1050 hPa / 31.0 inHg              | Upper bound of the dial scale                                      |
 | `trend_hours`      | number | 3                                 | How many hours back to look up for computing the trend             |
 | `trend_threshold`  | number | 1.5 hPa (auto-scaled for inHg)    | Minimum change over `trend_hours` to be considered rising/falling  |
-| `needle_color`     | string | theme text color                  | CSS color for the needle                                           |
+| `needle_color`     | string | `#333`                            | CSS color for the needle                                           |
 
 ## Development
 
 ```bash
 npm install
-npm run build       # bundles src/ into dist/ha-pressure-widget.js
+npm run build       # bundles src/ into dist/analog-barometer-card.js
 npm run typecheck
 npm run lint
 ```

@@ -3,9 +3,9 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { CARD_TAG, DEFAULT_TREND_HOURS, EDITOR_TAG } from './const';
 import { renderDial } from './dial-render';
 import { TrendTracker } from './trend';
-import { HomeAssistant, PressureWidgetConfig, TrendDirection } from './types';
+import { HomeAssistant, AnalogBarometerCardConfig, TrendDirection } from './types';
 import { convert, detectUnit, getDefaultRange, getDefaultThreshold } from './unit-utils';
-import './ha-pressure-widget-editor';
+import './analog-barometer-card-editor';
 
 const TREND_ARROWS: Record<TrendDirection, string> = {
   rising: '↑',
@@ -22,17 +22,17 @@ const TREND_LABELS: Record<TrendDirection, string> = {
 };
 
 @customElement(CARD_TAG)
-export class HaPressureWidget extends LitElement {
+export class AnalogBarometerCard extends LitElement {
   @property({ attribute: false }) hass?: HomeAssistant;
 
-  @state() private _config?: PressureWidgetConfig;
+  @state() private _config?: AnalogBarometerCardConfig;
   @state() private _trendDirection: TrendDirection = 'unknown';
   @state() private _pastValueDisplay: number | null = null;
 
   private _tracker = new TrendTracker();
   private _lastEntityUpdate: string | null = null;
 
-  setConfig(config: PressureWidgetConfig): void {
+  setConfig(config: AnalogBarometerCardConfig): void {
     if (!config.entity) {
       throw new Error('You must specify a pressure sensor entity.');
     }
@@ -47,13 +47,13 @@ export class HaPressureWidget extends LitElement {
     return document.createElement(EDITOR_TAG);
   }
 
-  static getStubConfig(hass: HomeAssistant): Partial<PressureWidgetConfig> {
+  static getStubConfig(hass: HomeAssistant): Partial<AnalogBarometerCardConfig> {
     const match = Object.values(hass?.states ?? {}).find(
       (entity) =>
         entity.entity_id.startsWith('sensor.') &&
         entity.attributes.device_class === 'atmospheric_pressure'
     );
-    return { type: 'custom:ha-pressure-widget', entity: match?.entity_id ?? '' };
+    return { type: 'custom:analog-barometer-card', entity: match?.entity_id ?? '' };
   }
 
   protected willUpdate(changed: PropertyValues): void {
@@ -255,7 +255,7 @@ export class HaPressureWidget extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [CARD_TAG]: HaPressureWidget;
+    [CARD_TAG]: AnalogBarometerCard;
   }
   interface Window {
     customCards?: Array<{ type: string; name: string; description: string }>;
